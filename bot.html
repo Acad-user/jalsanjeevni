@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaterBot - Comprehensive Water Assistant</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'water-blue': '#3498db',
+                        'water-light': '#87CEEB'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center text-water-blue mb-8">
+            JalSaanjeev - Comprehensive Water Assistant
+        </h1>
+        <div id="water-bot-container" class="flex justify-center"></div>
+    </div>
+
+    <script type="text/babel">
+        const knowledgeBase = {
+            waterConservation: {
+                irrigation: {
+                    title: "Smart Irrigation Practices",
+                    content: "Drip irrigation systems save 30-50% water compared to traditional systems.",
+                    keywords: ["irrigation", "watering", "garden", "smart", "drip", "sprinkler"]
+                },
+                household: {
+                    title: "Home Water Conservation",
+                    content: "Fixing leaks can save up to 10,000 gallons per year. Install low-flow fixtures for water savings.",
+                    keywords: ["home", "household", "fixture", "appliance", "leaks", "saving"]
+                }
+            },
+            waterQuality: {
+                index: {
+                    title: "Water Quality Index (WQI)",
+                    content: "WQI is calculated using pH, Dissolved Oxygen, and other factors to rate water quality.",
+                    keywords: ["water quality", "WQI", "index", "measure", "pH", "dissolved oxygen"]
+                },
+                contaminants: {
+                    title: "Common Water Contaminants",
+                    content: "Water contaminants include lead, arsenic, and microorganisms like E.coli.",
+                    keywords: ["contaminants", "lead", "arsenic", "pollution", "bacteria", "E.coli"]
+                }
+            },
+            climateImpact: {
+                scarcity: {
+                    title: "Climate Change and Water Scarcity",
+                    content: "Climate change exacerbates water scarcity through reduced rainfall and higher evaporation rates.",
+                    keywords: ["scarcity", "climate change", "rainfall", "drought", "global warming"]
+                }
+            },
+            policies: {
+                legislation: {
+                    title: "Water Policies and Regulations",
+                    content: "Policies like the Safe Drinking Water Act ensure access to clean and safe drinking water.",
+                    keywords: ["policy", "law", "regulation", "act", "government", "clean water"]
+                }
+            }
+        };
+
+        const processQuery = (query) => {
+            const tokens = query.toLowerCase().split(/\W+/);
+            let bestMatch = null;
+            let maxMatches = 0;
+
+            for (const category in knowledgeBase) {
+                for (const topic in knowledgeBase[category]) {
+                    const data = knowledgeBase[category][topic];
+                    const matches = data.keywords.filter(keyword => tokens.includes(keyword)).length;
+
+                    if (matches > maxMatches) {
+                        maxMatches = matches;
+                        bestMatch = data;
+                    }
+                }
+            }
+
+            return bestMatch || {
+                title: "Help",
+                content: "I couldn't find a specific answer. Try asking about irrigation, water quality, or conservation!",
+                keywords: []
+            };
+        };
+
+        const WaterBot = () => {
+            const [messages, setMessages] = React.useState([]);
+            const [input, setInput] = React.useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!input.trim()) return;
+
+                const userMessage = { type: 'user', content: input };
+                setMessages([...messages, userMessage]);
+
+                const botResponse = processQuery(input);
+                setMessages([
+                    ...messages,
+                    userMessage,
+                    { type: 'bot', content: `${botResponse.title}: ${botResponse.content}` }
+                ]);
+
+                setInput('');
+            };
+
+            return (
+                <div className="bg-white shadow-lg rounded-lg w-full max-w-2xl">
+                    <div className="bg-water-blue text-white p-4 rounded-t-lg">
+                        <h2 className="text-xl font-bold">WaterBot</h2>
+                    </div>
+                    <div className="p-4 h-96 overflow-y-auto">
+                        {messages.map((message, index) => (
+                            <div key={index} className={`mb-4 ${message.type === 'user' ? 'text-right' : 'text-left'}`}>
+                                <div className={`inline-block p-3 rounded-lg ${message.type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                                    {message.content}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <form onSubmit={handleSubmit} className="p-4 flex border-t">
+                        <input
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Ask about water conservation..."
+                            className="flex-1 p-2 border rounded-l-lg"
+                        />
+                        <button type="submit" className="bg-water-blue text-white p-2 rounded-r-lg">
+                            Send
+                        </button>
+                    </form>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<WaterBot />, document.getElementById('water-bot-container'));
+    </script>
+</body>
+</html>
